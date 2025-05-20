@@ -1,0 +1,233 @@
+// screens/CalendarScreen.tsx
+import React, { useState } from 'react';
+import {
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Platform,
+  StatusBar,
+} from 'react-native';
+import { Calendar } from 'react-native-calendars';
+import { ActivityProvider, useActivityContext } from '../context/ActivityContext';
+import { convertToCalendarFormat, normalizeDateFormat } from '../utils/storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Ionicons
+import { ActivityIcon } from '../components/ActivityIcons'; // ✅ Correct import
+
+const CalendarScreen = ({ navigation, route }: any) => {
+  const { joinedActivities } = useActivityContext();
+  const insets = useSafeAreaInsets();
+
+  // Today's date as "YYYY-MM-DD"
+  const selectedDate = route.params?.selectedDate; // "YYYY-MM-DD"
+  const selected = selectedDate ? new Date(selectedDate) : new Date();
+  const [currentDate, setCurrentDate] = useState<string>(
+    selected.toISOString().split('T')[0]
+  );
+
+  const getMarkedDates = () => {
+    let marks: Record<string, any> = {};
+
+    // Add dots for joined activities
+    joinedActivities.forEach((activity: any) => {
+      const calendarDate = convertToCalendarFormat(activity.date); 
+      marks[calendarDate] = {
+        marked: true,
+        dots: [{ color: '#1ae9ef' }],
+      };
+    });
+
+    // Add a turquoise circle to the selected date
+    if (currentDate) {
+      const selectedCalendarDate = convertToCalendarFormat(currentDate);
+      if (!marks[selectedCalendarDate]) {
+        marks[selectedCalendarDate] = {
+          selected: true,
+          customStyles: {
+            container: {
+              backgroundColor: '#1ae9ef',
+              borderRadius: 50,
+            },
+            text: {
+              color: '#fff',
+            },
+          },
+        };
+      } else {
+        marks[selectedCalendarDate].selected = true;
+      }
+    }
+
+    return marks;
+  };
+
+  // Use the function to get marked dates
+  const markedDates = getMarkedDates();
+
+  // Handle date selection:
+  const handleDayPress = (day: any) => {
+    setCurrentDate(day.dateString); // Always use "YYYY-MM-DD"
+  };
+
+  // Filter activities for the selected date.
+  const activitiesForDate = joinedActivities.filter(
+    (activity) => convertToCalendarFormat(activity.date) === convertToCalendarFormat(currentDate)
+  );
+
+  console.log('Selected Date:', currentDate);
+  console.log('Marked Dates:', markedDates);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Joined Activities:', JSON.stringify(joinedActivities, null, 2));
+  }
+
+  
+  if (!joinedActivities) {
+    console.warn('Joined activities not loaded yet.');
+    return null;
+  }
+
+  return (
+    <SafeAreaView
+      style={[
+        styles.container,
+        {
+          paddingTop:
+            Platform.OS === 'android'
+              ? (StatusBar.currentHeight || 20) + 10
+              : insets.top,
+          paddingBottom:
+            Platform.OS === 'android' ? insets.bottom + 10 : 10,
+        },
+      ]}
+    >
+      <Text style={styles.headerTitle}>Calendar</Text>
+      <Calendar
+        initialDate={currentDate} // <-- Add this line!
+        theme={{
+          backgroundColor: '#121212',
+          calendarBackground: '#121212',
+          textSectionTitleColor: '#1ae9ef',
+          selectedDayBackgroundColor: '#1ae9ef',
+          selectedDayTextColor: '#fff',
+          dayTextColor: '#fff',
+          todayTextColor: '#1ae9ef',
+          arrowColor: '#1ae9ef',
+          monthTextColor: '#fff',
+        }}
+        markedDates={markedDates}
+        markingType={'custom'} // Use custom marking for selected date
+        onDayPress={handleDayPress}
+      />
+      <View style={styles.activitiesContainer}>
+        {activitiesForDate.length > 0 ? (
+          activitiesForDate.map((activity: any) => (
+            <TouchableOpacity
+              key={activity.id}
+              style={styles.activityItem}
+              onPress={() => navigation.navigate('ActivityDetails', { activity })}
+            >
+              <View style={styles.activityInfo}>
+                <ActivityIcon activity={activity.activity} size={32} />
+                <View style={styles.activityDetails}>
+                  <Text style={styles.activityText}>
+                    <Text style={{ color: '#1ae9ef', fontWeight: 'bold' }}>{activity.activity}</Text>
+                    {` at ${activity.time}`}
+                  </Text>
+                  <Text style={styles.activityLocation}>
+                    Location: {activity.location}
+                  </Text>
+                  <Text style={styles.activityCreator}>
+                    Host: {activity.creator}
+                  </Text>
+                  <Text style={styles.activityJoinStatus}>
+                    {activity.joinedCount} / {activity.maxParticipants} joined
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.shareButton}
+                  onPress={() => console.log(`Share event ${activity.id}`)}
+                >
+                  <Ionicons name="share-social-outline" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.noActivitiesText}>
+            No activities scheduled for this day.
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#121212',
+    padding: 10,
+  },
+  headerTitle: {
+    fontSize: 28,
+    color: '#1ae9ef',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 18,
+  },
+  activitiesContainer: {
+    marginTop: 20,
+  },
+  activityItem: {
+    backgroundColor: '#1e1e1e',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  activityInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  activityDetails: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  activityText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  activityLocation: {
+    color: '#ccc',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  activityCreator: {
+    color: '#ccc',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  activityJoinStatus: {
+    color: '#1ae9ef',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  noActivitiesText: {
+    color: '#888',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 20,
+    fontWeight: '500',
+  },
+  shareButton: {
+    padding: 8,
+    backgroundColor: '#1e1e1e',
+    borderRadius: 5,
+  },
+});
+
+export default React.memo(CalendarScreen);
