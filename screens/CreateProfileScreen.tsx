@@ -15,6 +15,7 @@ import { MediaType } from 'expo-image-picker';
 import Logo from '../components/Logo';
 import { saveProfile, updateProfile } from '../utils/storage'; // Import the saveProfile and updateProfile functions
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 // Sports Options for the grid
 const sportsOptions = [
@@ -89,11 +90,23 @@ const CreateProfileScreen = ({ navigation, route }: any) => {
   return (
     <ScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={[styles.container, { paddingTop: insets.top + 30 }]} // Add extra top padding
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.logoContainer}>
+      {/* Back button only in edit mode, absolutely positioned at the top left */}
+      {isEdit && (
+        <TouchableOpacity
+          style={[styles.backButton, { top: insets.top + 10, left: 16, position: 'absolute', zIndex: 10 }]}
+          onPress={() => navigation.goBack()}
+          accessibilityLabel="Back to Profile"
+        >
+          <Ionicons name="arrow-back" size={28} color="#1ae9ef" />
+        </TouchableOpacity>
+      )}
+
+      {/* Centered, smaller logo */}
+      <View style={styles.logoWrapper}>
         <Logo />
       </View>
 
@@ -192,16 +205,34 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#121212',
     alignItems: 'center',
+    justifyContent: 'flex-start',
+    // Remove marginTop here if present
   },
-  logoContainer: {
-    marginTop: 40,
+  logoWrapper: {
+    width: 80,
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 0, // aligns with back button
     marginBottom: 20,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    alignSelf: 'center',
+    resizeMode: 'contain',
+  },
+  backButton: {
+    padding: 4,
+    backgroundColor: 'transparent',
   },
   title: {
     fontSize: 28,
     color: '#1ae9ef',
     fontWeight: '700',
     marginBottom: 20,
+    textAlign: 'center',
+    width: '100%',
   },
   photoButton: {
     width: 120,

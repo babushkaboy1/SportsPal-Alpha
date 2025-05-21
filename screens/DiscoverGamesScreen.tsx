@@ -173,17 +173,57 @@ const DiscoverGamesScreen = ({ navigation }: any) => {
 
   const toggleSortByDistance = () => {
     if (isSortingByDistance) {
-      // If turning off, revert to original order
-      setActivitiesData([...activities]);
+      // If turning off, reset to default order for current filters
+      let filtered = activities;
+
+      if (selectedFilter !== 'All') {
+        filtered = filtered.filter(activity => activity.activity === selectedFilter);
+      }
+
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(activity =>
+          activity.activity.toLowerCase().includes(query) ||
+          activity.creator.toLowerCase().includes(query)
+        );
+      }
+
+      if (selectedDate) {
+        const formattedDate = selectedDate.toISOString().split('T')[0];
+        filtered = filtered.filter(activity => activity.date === formattedDate);
+      }
+
+      setActivitiesData(filtered); // Default order, not sorted by distance
       setIsSortingByDistance(false);
     } else {
-      // If turning on, sort by distance
+      // If turning on, sort the currently filtered activities by distance
       if (userLocation) {
-        const sortedActivities = [...activities].sort((a, b) =>
+        let filtered = activities;
+
+        if (selectedFilter !== 'All') {
+          filtered = filtered.filter(activity => activity.activity === selectedFilter);
+        }
+
+        if (searchQuery.trim()) {
+          const query = searchQuery.toLowerCase();
+          filtered = filtered.filter(activity =>
+            activity.activity.toLowerCase().includes(query) ||
+            activity.creator.toLowerCase().includes(query)
+          );
+        }
+
+        if (selectedDate) {
+          const formattedDate = selectedDate.toISOString().split('T')[0];
+          filtered = filtered.filter(activity => activity.date === formattedDate);
+        }
+
+        // Now sort the filtered list by distance
+        filtered = [...filtered].sort((a, b) =>
           calculateDistance(userLocation.latitude, userLocation.longitude, a.latitude, a.longitude) -
           calculateDistance(userLocation.latitude, userLocation.longitude, b.latitude, b.longitude)
         );
-        setActivitiesData(sortedActivities);
+
+        setActivitiesData(filtered);
       }
       setIsSortingByDistance(true);
     }

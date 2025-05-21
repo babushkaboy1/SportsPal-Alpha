@@ -149,15 +149,18 @@ const ActivityDetailsScreen = ({ route, navigation }: any) => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={[styles.backButton, { left: 16, position: 'absolute', zIndex: 10 }]}
+          onPress={() => navigation.goBack()}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="arrow-back" size={28} color="#1ae9ef" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Activity Details</Text>
+      </View>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{activity.activity} Details</Text>
-        </View>
-
         {/* Map Overview */}
         <View style={styles.mapContainer}>
           <MapView
@@ -274,13 +277,23 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    paddingTop: 10,
+    paddingBottom: 18,
+    justifyContent: 'center',
+    backgroundColor: '#121212',
+    position: 'relative',
+  },
+  backButton: {
+    padding: 4,
+    top: 10,
   },
   headerTitle: {
-    color: '#fff',
-    fontSize: 20,
+    fontSize: 28,
+    color: '#1ae9ef',
     fontWeight: 'bold',
-    marginLeft: 10,
+    textAlign: 'center',
+    flex: 1,
+    marginLeft: 0,
   },
   mapContainer: {
     height: 250,
