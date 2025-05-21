@@ -1,11 +1,14 @@
 // screens/WelcomeScreen.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Logo from '../components/Logo';
 
 const WelcomeScreen = ({ navigation }: any) => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <View style={styles.topContainer}>
         {/* Display the logo */}
         <Logo />

@@ -175,19 +175,7 @@ const ChatDetailScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {
-          paddingTop: Platform.OS === 'android'
-            ? (StatusBar.currentHeight || 20) + 10 // Add extra top padding on Android
-            : insets.top,
-          paddingBottom: Platform.OS === 'android'
-            ? insets.bottom + 20 // Add extra bottom padding on Android
-            : insets.bottom,
-        },
-      ]}
-    >
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#121212" />
       <View style={styles.flexContainer}>
         <FlatList

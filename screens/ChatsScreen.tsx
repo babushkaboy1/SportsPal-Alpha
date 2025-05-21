@@ -13,6 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Dummy Data for Chats
 const chatList = [
@@ -52,6 +53,7 @@ const chatList = [
 
 const ChatsScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const insets = useSafeAreaInsets();
 
   const filteredChats = chatList.filter((chat) =>
     chat.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -81,7 +83,7 @@ const ChatsScreen = ({ navigation }: any) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <Text style={styles.headerTitle}>Chats</Text>
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color="#ccc" />

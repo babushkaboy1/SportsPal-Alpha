@@ -20,6 +20,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { ActivityIcon } from '../components/ActivityIcons';
 import { activities, Activity } from '../data/activitiesData';
 import { ActivityProvider, useActivityContext } from '../context/ActivityContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const sportFilterOptions = [
   'All', 'Basketball', 'Soccer', 'Running', 'Gym',
@@ -38,6 +39,7 @@ const DiscoverGamesScreen = ({ navigation }: any) => {
   const [isSortingByDistance, setIsSortingByDistance] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
   const [originalActivities, setOriginalActivities] = useState<Activity[]>([]);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     getUserLocation();
@@ -104,7 +106,7 @@ const DiscoverGamesScreen = ({ navigation }: any) => {
   };
 
   const handleActivityTap = (item: Activity) => {
-    navigation.navigate('ActivityDetails', { activity: item });
+    navigation.navigate('ActivityDetails', { activityId: item.id });
   };
 
   const ActivityCard = ({ item, navigation }: { item: Activity; navigation: any }) => {
@@ -139,7 +141,7 @@ const DiscoverGamesScreen = ({ navigation }: any) => {
     return (
       <TouchableOpacity 
         style={styles.card} 
-        onPress={() => navigation.navigate('ActivityDetails', { activity: item })}
+        onPress={() => navigation.navigate('ActivityDetails', { activityId: item.id })}
       >
         <View style={styles.cardHeader}>
           <ActivityIcon activity={item.activity} size={32} />
@@ -188,9 +190,9 @@ const DiscoverGamesScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
+      <Text style={styles.headerTitle}>Discover Activities</Text>
       <View style={styles.topSection}>
-        <Text style={styles.headerTitle}>Discover Activities</Text>
         <TextInput
           style={styles.searchInput}
           placeholder="Search by sport or host..."
@@ -236,7 +238,8 @@ const DiscoverGamesScreen = ({ navigation }: any) => {
         data={activitiesData}
         renderItem={({ item }) => (
           <ActivityCard item={item} navigation={navigation} />
-        )}
+        )
+        }
         keyExtractor={(item) => item.id}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={filterActivities} />
@@ -260,10 +263,9 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#121212',
-    paddingTop: Platform.OS === 'android' ? ((StatusBar.currentHeight || 0) + 10) : 0,
   },
   topSection: {
-    padding: 15,
+    paddingHorizontal: 15, // Only horizontal padding, not vertical
   },
   headerTitle: {
     fontSize: 28,

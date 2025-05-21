@@ -164,7 +164,7 @@ const ProfileScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.headerRow}>
         <Text style={styles.profileNameHeader}>{profile?.username || 'Username'}</Text>
         <TouchableOpacity style={styles.settingsButton} onPress={() => {}}>
@@ -222,10 +222,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop:
-      Platform.OS === 'android'
-        ? (StatusBar.currentHeight ? StatusBar.currentHeight + 5 : 15)
-        : 5,
+    paddingTop: 0, // Remove platform-specific logic
     paddingHorizontal: 20,
     marginTop: 0,
     marginBottom: 0,

@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Platform,
   StatusBar,
+  ScrollView,
+  RefreshControl,
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { ActivityProvider, useActivityContext } from '../context/ActivityContext';
@@ -26,6 +28,14 @@ const CalendarScreen = ({ navigation, route }: any) => {
   const [currentDate, setCurrentDate] = useState<string>(
     selected.toISOString().split('T')[0]
   );
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Refresh handler
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // If you have a reload function, call it here (e.g., await reloadActivities();)
+    setTimeout(() => setRefreshing(false), 800); // Simulate refresh
+  };
 
   const getMarkedDates = () => {
     let marks: Record<string, any> = {};
@@ -89,77 +99,72 @@ const CalendarScreen = ({ navigation, route }: any) => {
   }
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {
-          paddingTop:
-            Platform.OS === 'android'
-              ? (StatusBar.currentHeight || 20) + 10
-              : insets.top,
-          paddingBottom:
-            Platform.OS === 'android' ? insets.bottom + 10 : 10,
-        },
-      ]}
-    >
+    <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
       <Text style={styles.headerTitle}>Calendar</Text>
-      <Calendar
-        initialDate={currentDate} // <-- Add this line!
-        theme={{
-          backgroundColor: '#121212',
-          calendarBackground: '#121212',
-          textSectionTitleColor: '#1ae9ef',
-          selectedDayBackgroundColor: '#1ae9ef',
-          selectedDayTextColor: '#fff',
-          dayTextColor: '#fff',
-          todayTextColor: '#1ae9ef',
-          arrowColor: '#1ae9ef',
-          monthTextColor: '#fff',
-        }}
-        markedDates={markedDates}
-        markingType={'custom'} // Use custom marking for selected date
-        onDayPress={handleDayPress}
-      />
-      <View style={styles.activitiesContainer}>
-        {activitiesForDate.length > 0 ? (
-          activitiesForDate.map((activity: any) => (
-            <TouchableOpacity
-              key={activity.id}
-              style={styles.activityItem}
-              onPress={() => navigation.navigate('ActivityDetails', { activity })}
-            >
-              <View style={styles.activityInfo}>
-                <ActivityIcon activity={activity.activity} size={32} />
-                <View style={styles.activityDetails}>
-                  <Text style={styles.activityText}>
-                    <Text style={{ color: '#1ae9ef', fontWeight: 'bold' }}>{activity.activity}</Text>
-                    {` at ${activity.time}`}
-                  </Text>
-                  <Text style={styles.activityLocation}>
-                    Location: {activity.location}
-                  </Text>
-                  <Text style={styles.activityCreator}>
-                    Host: {activity.creator}
-                  </Text>
-                  <Text style={styles.activityJoinStatus}>
-                    {activity.joinedCount} / {activity.maxParticipants} joined
-                  </Text>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
+        <Calendar
+          initialDate={currentDate}
+          theme={{
+            backgroundColor: '#121212',
+            calendarBackground: '#121212',
+            textSectionTitleColor: '#1ae9ef',
+            selectedDayBackgroundColor: '#1ae9ef',
+            selectedDayTextColor: '#fff',
+            dayTextColor: '#fff',
+            todayTextColor: '#1ae9ef',
+            arrowColor: '#1ae9ef',
+            monthTextColor: '#fff',
+          }}
+          markedDates={markedDates}
+          markingType={'custom'}
+          onDayPress={handleDayPress}
+        />
+        <View style={styles.activitiesContainer}>
+          {activitiesForDate.length > 0 ? (
+            activitiesForDate.map((activity: any) => (
+              <TouchableOpacity
+                key={activity.id}
+                style={styles.activityItem}
+                onPress={() => navigation.navigate('ActivityDetails', { activityId: activity.id })}
+              >
+                <View style={styles.activityInfo}>
+                  <ActivityIcon activity={activity.activity} size={32} />
+                  <View style={styles.activityDetails}>
+                    <Text style={styles.activityText}>
+                      <Text style={{ color: '#1ae9ef', fontWeight: 'bold' }}>{activity.activity}</Text>
+                      {` at ${activity.time}`}
+                    </Text>
+                    <Text style={styles.activityLocation}>
+                      Location: {activity.location}
+                    </Text>
+                    <Text style={styles.activityCreator}>
+                      Host: {activity.creator}
+                    </Text>
+                    <Text style={styles.activityJoinStatus}>
+                      {activity.joinedCount} / {activity.maxParticipants} joined
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.shareButton}
+                    onPress={() => console.log(`Share event ${activity.id}`)}
+                  >
+                    <Ionicons name="share-social-outline" size={20} color="#fff" />
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                  style={styles.shareButton}
-                  onPress={() => console.log(`Share event ${activity.id}`)}
-                >
-                  <Ionicons name="share-social-outline" size={20} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={styles.noActivitiesText}>
-            No activities scheduled for this day.
-          </Text>
-        )}
-      </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.noActivitiesText}>
+              No activities scheduled for this day.
+            </Text>
+          )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -169,6 +174,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#121212',
     padding: 10,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#121212',
   },
   headerTitle: {
     fontSize: 28,

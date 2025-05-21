@@ -21,6 +21,7 @@ import { RootStackParamList } from '../types/navigation';
 import * as Location from 'expo-location';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const THEME_COLOR = '#1ae9ef';
 
@@ -43,6 +44,7 @@ const CreateGameScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { toggleJoinActivity } = useActivityContext();
   const route = useRoute<RouteProp<RootStackParamList, 'CreateGame'>>();
+  const insets = useSafeAreaInsets();
 
   const [activityName, setActivityName] = useState('');
   const [description, setDescription] = useState('');
@@ -164,7 +166,7 @@ const CreateGameScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Create Activity</Text>
       </View>

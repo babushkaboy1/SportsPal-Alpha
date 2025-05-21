@@ -14,6 +14,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { MediaType } from 'expo-image-picker';
 import Logo from '../components/Logo';
 import { saveProfile, updateProfile } from '../utils/storage'; // Import the saveProfile and updateProfile functions
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Sports Options for the grid
 const sportsOptions = [
@@ -33,6 +34,7 @@ const CreateProfileScreen = ({ navigation, route }: any) => {
   const [location, setLocation] = useState(profileData?.location || '');
   const [photo, setPhoto] = useState<string | null>(profileData?.photo || null);
   const [selectedSports, setSelectedSports] = useState<string[]>(profileData?.selectedSports || []);
+  const insets = useSafeAreaInsets();
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();

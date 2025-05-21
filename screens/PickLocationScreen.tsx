@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const DARK_TURQUOISE = '#009fa3';
 
@@ -17,6 +18,7 @@ export default function PickLocationScreen({ navigation, route }: Props) {
     route.params?.initialCoords ?? null
   );
   const [address, setAddress] = useState<string>('');
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     (async () => {

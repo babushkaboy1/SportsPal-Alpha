@@ -15,12 +15,30 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useActivityContext } from '../context/ActivityContext';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { activities } from '../data/activitiesData';
 
 const ActivityDetailsScreen = ({ route, navigation }: any) => {
-  const { activity } = route.params;
-  const { toggleJoinActivity, isActivityJoined, loadJoinedActivities, joinedActivities, setJoinedActivities } = useActivityContext();
+  const { activityId } = route.params;
+  const { joinedActivities } = useActivityContext();
+
+  // Try to find in joinedActivities, fallback to all activities
+  const activity =
+    joinedActivities.find(a => a.id === activityId) ||
+    activities.find(a => a.id === activityId);
+
+  if (!activity) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
+        <Text style={{ color: '#fff', fontSize: 18 }}>Activity not found.</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const { toggleJoinActivity, isActivityJoined, loadJoinedActivities, setJoinedActivities } = useActivityContext();
   const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
   const mapRef = useRef<MapView>(null);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     (async () => {
@@ -130,7 +148,7 @@ const ActivityDetailsScreen = ({ route, navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {/* Header */}
         <View style={styles.header}>
@@ -248,6 +266,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#121212',
     paddingTop: Platform.OS === 'android' ? ((StatusBar.currentHeight || 0) + 10) : 0,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#121212',
   },
   header: {
     flexDirection: 'row',
