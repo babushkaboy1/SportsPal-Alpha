@@ -13,7 +13,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { MediaType } from 'expo-image-picker';
 import Logo from '../components/Logo';
-import { saveProfile } from '../utils/storage'; // Import the saveProfile function
+import { saveProfile, updateProfile } from '../utils/storage'; // Import the saveProfile and updateProfile functions
 
 // Sports Options for the grid
 const sportsOptions = [
@@ -22,14 +22,17 @@ const sportsOptions = [
   'Yoga', 'Martial Arts', 'Table Tennis', 'American Football'
 ];
 
-const CreateProfileScreen = ({ navigation }: any) => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [location, setLocation] = useState('');
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [selectedSports, setSelectedSports] = useState<string[]>([]);
+const CreateProfileScreen = ({ navigation, route }: any) => {
+  const isEdit = route?.params?.mode === 'edit';
+  const profileData = route?.params?.profileData;
+
+  const [username, setUsername] = useState(profileData?.username || '');
+  const [email, setEmail] = useState(profileData?.email || '');
+  const [phone, setPhone] = useState(profileData?.phone || '');
+  const [password, setPassword] = useState(profileData?.password || '');
+  const [location, setLocation] = useState(profileData?.location || '');
+  const [photo, setPhoto] = useState<string | null>(profileData?.photo || null);
+  const [selectedSports, setSelectedSports] = useState<string[]>(profileData?.selectedSports || []);
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -61,7 +64,7 @@ const CreateProfileScreen = ({ navigation }: any) => {
 
   // Make handleContinue async so we can await saveProfile
   const handleContinue = async () => {
-    const profileData = {
+    const newProfileData = {
       username,
       email,
       phone,
@@ -71,9 +74,13 @@ const CreateProfileScreen = ({ navigation }: any) => {
       selectedSports,
     };
 
-    await saveProfile(profileData);
-    console.log('Profile created:', profileData);
-    Alert.alert('Success', 'Your profile has been created!');
+    if (isEdit) {
+      await updateProfile(newProfileData);
+      Alert.alert('Success', 'Your profile has been updated!');
+    } else {
+      await saveProfile(newProfileData);
+      Alert.alert('Success', 'Your profile has been created!');
+    }
     navigation.navigate('Welcome');
   };
 
@@ -88,7 +95,7 @@ const CreateProfileScreen = ({ navigation }: any) => {
         <Logo />
       </View>
 
-      <Text style={styles.title}>Create Your Profile</Text>
+      <Text style={styles.title}>{isEdit ? 'Edit Profile' : 'Create Your Profile'}</Text>
 
       {/* Profile Photo Section */}
       <TouchableOpacity style={styles.photoButton} onPress={pickImage}>

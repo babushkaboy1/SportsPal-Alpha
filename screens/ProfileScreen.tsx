@@ -22,10 +22,7 @@ import { ActivityIcon } from '../components/ActivityIcons';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-
-type RootStackParamList = {
-  ActivityDetails: { activity: any };
-};
+import { RootStackParamList } from '../types/navigation';
 
 const ProfileScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'ActivityDetails'>>();
@@ -99,7 +96,7 @@ const ProfileScreen = () => {
     return (
       <TouchableOpacity 
         style={styles.activityCard} 
-        onPress={() => navigation.navigate('ActivityDetails', { activity: item })}
+        onPress={() => navigation.navigate('ActivityDetails', { activityId: item.id })}
       >
         <View style={styles.cardHeader}>
           <ActivityIcon activity={item.activity} size={32} />
@@ -182,7 +179,10 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.profileActionsRow}>
-        <TouchableOpacity style={styles.profileActionButton} onPress={() => { /* Edit profile logic */ }}>
+        <TouchableOpacity
+          style={styles.profileActionButton}
+          onPress={() => navigation.navigate('CreateProfile', { mode: 'edit', profileData: profile })}
+        >
           <Ionicons name="create-outline" size={18} color="#1ae9ef" style={{ marginRight: 6 }} />
           <Text style={styles.profileActionText}>Edit Profile</Text>
         </TouchableOpacity>

@@ -59,7 +59,6 @@ const MainTabs = () => {
         tabBarStyle: styles.tabBarStyle,
         tabBarPressColor: 'transparent',
         tabBarButton: (props) => {
-          // Remove any props with null values (like disabled, delayLongPress)
           const cleanedProps = Object.fromEntries(
             Object.entries(props).filter(([_, v]) => v !== null)
           );
@@ -76,17 +75,17 @@ const MainTabs = () => {
             case 'Discover':
               iconName = 'search-outline';
               break;
-            case 'Chats':
-              iconName = 'chatbubbles-outline';
+            case 'Calendar':
+              iconName = 'calendar-outline';
               break;
             case 'CreateGame':
               iconName = 'add-circle-outline';
               break;
-            case 'Calendar':
-              iconName = 'calendar-outline';
-              break;
             case 'Profile':
               iconName = 'person-outline';
+              break;
+            case 'Chats':
+              iconName = 'chatbubbles-outline';
               break;
           }
           return <Ionicons name={iconName as any} size={size} color={color} />;
@@ -94,14 +93,14 @@ const MainTabs = () => {
       })}
     >
       <Tab.Screen name="Discover" component={DiscoverGamesScreen} />
-      <Tab.Screen name="Chats" component={ChatsScreen} />
-      <Tab.Screen name="CreateGame" component={CreateGameScreen} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
       <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ headerShown: false }}
+        name="CreateGame"
+        component={CreateGameScreen}
+        options={{ tabBarLabel: 'Create Event' }} // or 'Create'
       />
+      <Tab.Screen name="Chats" component={ChatsScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 };

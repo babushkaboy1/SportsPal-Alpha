@@ -1,6 +1,9 @@
 export type RootStackParamList = {
   Login: undefined;
-  CreateProfile: undefined;
+  CreateProfile: {
+    mode?: 'edit' | 'create';
+    profileData?: any;
+  };
   Welcome: undefined;
   MainTabs: { 
     screen?: string; 
