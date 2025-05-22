@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { enableScreens } from 'react-native-screens';
 import { StatusBar } from 'expo-status-bar';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 
 // Import your screens
 import DiscoverGamesScreen from './screens/DiscoverGamesScreen';
@@ -106,6 +108,28 @@ const MainTabs = () => {
 };
 
 export default function App() {
+  useEffect(() => {
+    const getPermissions = async () => {
+      if (Device.isDevice) {
+        const { status } = await Notifications.requestPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission required', 'Enable notifications to get reminders.');
+        }
+      }
+    };
+    getPermissions();
+  }, []);
+
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true, // <-- add this
+      shouldShowList: true,   // <-- and this
+    }),
+  });
+
   return (
     <ActivityProvider>
       <NavigationContainer theme={MyTheme}>

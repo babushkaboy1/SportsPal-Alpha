@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Activity } from '../data/activitiesData';
 import { saveJoinedActivity, removeJoinedActivity, loadJoinedActivities as loadActivitiesFromStorage } from '../utils/storage';
+import { scheduleActivityNotifications } from '../utils/notifications';
 
 type ActivityContextType = {
   joinedActivities: Activity[];
@@ -59,6 +60,13 @@ export const ActivityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const newActivity = { ...activity, joined: true, isJoined: true };
         updatedJoinedActivities = [...joinedActivities, newActivity];
         await saveJoinedActivity(newActivity);
+
+        // Schedule notifications for the activity
+        // Combine date and time into a Date object
+        const [year, month, day] = newActivity.date.split('-').map(Number);
+        const [hour, minute] = newActivity.time.split(':').map(Number);
+        const activityDateObj = new Date(year, month - 1, day, hour, minute);
+        scheduleActivityNotifications(activityDateObj);
       }
 
       setJoinedActivities(updatedJoinedActivities);
