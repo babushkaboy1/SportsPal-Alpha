@@ -70,6 +70,15 @@ const ChatDetailScreen = () => {
 
   // Play an audio message with volume 1.0
   const handlePlayPauseAudio = async (uri: string, id: string) => {
+    // Set audio mode for playback (speaker, not earpiece)
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      interruptionModeIOS: 1,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      staysActiveInBackground: false,
+    });
+
     if (playingAudioId === id && playbackInstance) {
       const status = await playbackInstance.getStatusAsync();
       if (status.isLoaded && status.isPlaying) {
@@ -167,7 +176,7 @@ const ChatDetailScreen = () => {
           extension: '.caf',
           audioQuality: 3,
           sampleRate: 44100,
-          bitRate: 512000, // Higher bitrate for iOS
+          bitRate: 512000,
           linearPCMBitDepth: 16,
           linearPCMIsBigEndian: false,
           linearPCMIsFloat: false,
